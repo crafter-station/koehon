@@ -1,7 +1,7 @@
 # Dockerfile
 
 # Stage 1: Install dependencies
-FROM node:20.18.3-alpine3.21 AS deps
+FROM node:22.12-alpine3.21 AS deps
 # Install security updates
 RUN apk upgrade --no-cache
 # Install pnpm using corepack with specific version
@@ -11,7 +11,7 @@ COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --prod --frozen-lockfile
 
 # Stage 2: Build the application
-FROM node:20.18.3-alpine3.21 AS builder
+FROM node:22.12-alpine3.21 AS builder
 RUN apk upgrade --no-cache
 RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 WORKDIR /app
@@ -26,7 +26,7 @@ COPY . .
 RUN pnpm run build
 
 # Stage 3: Production server (Runner)
-FROM node:20.18.3-alpine3.21 AS runner
+FROM node:22.12-alpine3.21 AS runner
 # Install security updates
 RUN apk upgrade --no-cache && \
     apk add --no-cache dumb-init
