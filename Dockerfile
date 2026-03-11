@@ -1,40 +1,45 @@
 # Dockerfile
 
 # Stage 1: Install dependencies
-FROM node:20-alpine AS deps
+FROM node:20.18.3-alpine3.21 AS deps
+RUN corepack enable && corepack prepare pnpm@latest --activate
+# Install security updates
+RUN apk upgrade --no-cache
 WORKDIR /app
-COPY package.json package-lock.json* ./
-RUN npm ci --omit=dev
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --prod --frozen-lockfile
 
 # Stage 2: Build the application
-FROM node:20-alpine AS builder
+FROM node:20.18.3-alpine3.21 AS builder
+RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN apk upgrade --no-cache
 WORKDIR /app
 
 # Accept build arguments for NEXT_PUBLIC_ environment variables
 ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 
-COPY --from=deps /app/node_modules ./node_modules
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 COPY . .
-RUN npm run build
+RUN pnpm run build
 
 # Stage 3: Production server (Runner)
-FROM node:20-alpine AS runner
+FROM node:20.18.3-alpine3.21 AS runner
+# Install security updates
+RUN apk upgrade --no-cache && \
+    apk add --no-cache dumb-init
 WORKDIR /app
 ENV NODE_ENV=production
 
 # Create non-root user for security
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
 
 # Copy the standalone output from the builder stage
-COPY --from=builder /app/.next/standalone ./
-# The standalone output does not automatically include static assets or the public folder, so copy them manually
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
-
-# Set correct permissions
-RUN chown -R nextjs:nodejs /app
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 USER nextjs
 
@@ -44,4 +49,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-CMD ["node", "server.js"]
+# Use dumb-init to handle signals properly
+CMD ["dumb-init", "node", "server.js"]

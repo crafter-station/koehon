@@ -3,6 +3,8 @@
 node_modules
 npm-debug.log
 yarn-error.log
+pnpm-debug.log
+.pnpm-store
 .env
 .env.local
 .env*.local
@@ -11,3 +13,5 @@ docker-compose.yaml
 README.md
 .vscode
 .idea
+*.md
+.github
