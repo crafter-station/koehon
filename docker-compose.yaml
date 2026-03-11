@@ -19,17 +19,6 @@ services:
       timeout: 5s
       start_period: 60s
       retries: 5
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.nextjs-app.rule=Host(`koehon.jibaru.ink`)"
-      - "traefik.http.routers.nextjs-app.entrypoints=websecure"
-      - "traefik.http.routers.nextjs-app.tls=true"
-      - "traefik.http.routers.nextjs-app.tls.certresolver=letsencrypt"
-      - "traefik.http.services.nextjs-app.loadbalancer.server.port=3000"
-      - "traefik.http.routers.nextjs-app-http.rule=Host(`koehon.jibaru.ink`)"
-      - "traefik.http.routers.nextjs-app-http.entrypoints=web"
-      - "traefik.http.routers.nextjs-app-http.middlewares=redirect-to-https"
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
 
 networks:
   dokploy-network:
