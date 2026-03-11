@@ -1,5 +1,6 @@
 import { Button } from "../ui/button";
 import { ArrowRightIcon, GitHubIcon, StarIcon } from "../icons/icons";
+import Link from "next/link";
 
 export function HeroSection() {
   return (
@@ -29,15 +30,17 @@ export function HeroSection() {
 
       {/* CTA Buttons */}
       <div className="flex flex-col items-center justify-center gap-4 px-4 sm:flex-row sm:px-0">
-        <Button
-          variant="primary"
-          className="group w-full sm:w-auto"
-          rightIcon={
-            <ArrowRightIcon className="transition-transform group-hover:translate-x-1" />
-          }
-        >
-          Try It Free
-        </Button>
+        <Link href="/resources" className="w-full sm:w-auto">
+          <Button
+            variant="primary"
+            className="group w-full"
+            rightIcon={
+              <ArrowRightIcon className="transition-transform group-hover:translate-x-1" />
+            }
+          >
+            Try It Free
+          </Button>
+        </Link>
         <Button
           variant="secondary"
           leftIcon={<GitHubIcon />}

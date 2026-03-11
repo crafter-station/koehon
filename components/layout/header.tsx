@@ -6,21 +6,24 @@ import { ClerkUserButton } from "@/components/elements/clerk-user-button";
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isSignedIn } = useUser();
+  const pathname = usePathname();
+  const isResourcesPage = pathname === "/resources";
 
   return (
     <header className="border-b border-zinc-200 px-4 py-4 dark:border-white/10 sm:px-6">
       <div className="mx-auto flex max-w-7xl items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <div className="flex h-6 w-6 items-center justify-center bg-foreground text-sm font-bold text-background dark:bg-white dark:text-black">
             K
           </div>
           <span className="font-semibold">Koehon</span>
-        </div>
+        </Link>
 
         {/* Desktop Navigation */}
         <div className="hidden items-center gap-3 sm:flex md:gap-4">
@@ -30,7 +33,17 @@ export function Header() {
           </div>
           <ThemeToggle />
           {isSignedIn ? (
-            <ClerkUserButton />
+            <>
+              {!isResourcesPage && (
+                <Link
+                  href="/resources"
+                  className="text-sm font-medium text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
+                >
+                  Library
+                </Link>
+              )}
+              <ClerkUserButton />
+            </>
           ) : (
             <Link
               href="/sign-in"
@@ -70,7 +83,17 @@ export function Header() {
             401
           </div>
           {isSignedIn ? (
-            <ClerkUserButton />
+            <>
+              {!isResourcesPage && (
+                <Link
+                  href="/resources"
+                  className="text-sm font-medium text-zinc-600 dark:text-zinc-400"
+                >
+                  Library
+                </Link>
+              )}
+              <ClerkUserButton />
+            </>
           ) : (
             <Link
               href="/sign-in"
