@@ -19,13 +19,21 @@ export default async function ResourcesPage() {
       {/* Main Content */}
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">
-            My Library
-          </h1>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            {resources.length} {resources.length === 1 ? "resource" : "resources"} available
-          </p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">
+              My Library
+            </h1>
+            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+              {resources.length} {resources.length === 1 ? "resource" : "resources"} available
+            </p>
+          </div>
+          <a
+            href="/resources/new"
+            className="bg-foreground px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-foreground/90 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+          >
+            + Add Resource
+          </a>
         </div>
         {/* Stats Bar */}
         <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
