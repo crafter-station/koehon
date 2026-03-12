@@ -20,6 +20,17 @@ export interface GetResourcesResult {
   totalPages: number;
 }
 
+export interface Resource {
+  id: string;
+  title: string;
+  coverUrl: string;
+  pdfUrl: string;
+  language: string;
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export async function getResources(
   page: number = 1
 ): Promise<GetResourcesResult> {
@@ -54,4 +65,25 @@ export async function getResources(
     total,
     totalPages,
   };
+}
+
+export async function getResource(id: string): Promise<Resource | null> {
+  const { userId } = await auth();
+
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+
+  const [resource] = await db
+    .select()
+    .from(resources)
+    .where(eq(resources.id, id))
+    .limit(1);
+
+  // Check if resource exists and belongs to user
+  if (!resource || resource.userId !== userId) {
+    return null;
+  }
+
+  return resource;
 }

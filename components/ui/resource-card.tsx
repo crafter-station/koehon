@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { Resource } from "@/lib/data/resources";
 
 interface ResourceCardProps {
@@ -14,7 +15,10 @@ export function ResourceCard({ resource }: ResourceCardProps) {
   }).format(resource.createdAt);
 
   return (
-    <div className="group relative overflow-hidden border border-zinc-200 bg-white transition-all hover:shadow-lg dark:border-white/10 dark:bg-zinc-900">
+    <Link
+      href={`/resources/${resource.id}`}
+      className="group relative block overflow-hidden border border-zinc-200 bg-white transition-all hover:shadow-lg dark:border-white/10 dark:bg-zinc-900"
+    >
       {/* Cover Image */}
       <div className="relative aspect-[3/4] overflow-hidden bg-zinc-100 dark:bg-zinc-800">
         <img
@@ -40,6 +44,7 @@ export function ResourceCard({ resource }: ResourceCardProps) {
         <button
           className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-zinc-900 backdrop-blur-sm transition-colors hover:bg-white dark:bg-zinc-800/90 dark:text-white dark:hover:bg-zinc-800"
           aria-label="Play audio"
+          onClick={(e) => e.preventDefault()}
         >
           <svg
             className="h-3.5 w-3.5"
@@ -62,6 +67,6 @@ export function ResourceCard({ resource }: ResourceCardProps) {
           </svg>
         </button>
       </div>
-    </div>
+    </Link>
   );
 }
