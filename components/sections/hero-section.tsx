@@ -30,7 +30,7 @@ export function HeroSection() {
 
       {/* CTA Buttons */}
       <div className="flex flex-col items-center justify-center gap-4 px-4 sm:flex-row sm:px-0">
-        <Link href="/resources" className="w-full sm:w-auto">
+        <Link href="/resources" className="sm:w-auto">
           <Button
             variant="primary"
             className="group w-full"
@@ -44,7 +44,7 @@ export function HeroSection() {
         <Button
           variant="secondary"
           leftIcon={<GitHubIcon />}
-          className="w-full sm:w-auto"
+          className="sm:w-auto"
           rightIcon={
             <span className="flex items-center gap-1 text-sm text-zinc-600 dark:text-zinc-400">
               <StarIcon />
