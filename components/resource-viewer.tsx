@@ -20,8 +20,8 @@ export function ResourceViewer({
   const [currentPage, setCurrentPage] = useState(1);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isLoadingPage, setIsLoadingPage] = useState(false);
+  const [isAutoplayEnabled, setIsAutoplayEnabled] = useState(false);
 
-  // Debounced function to fetch page data
   const fetchPageData = useCallback(
     async (page: number) => {
       setIsLoadingPage(true);
@@ -30,24 +30,20 @@ export function ResourceViewer({
         setAudioUrl(data.audioUrl);
         setIsLoadingPage(false);
       } catch (error: any) {
-        // Check if it's a 404 error (page doesn't exist yet)
         if (error?.status === 404 || error?.error === "Page not found") {
           setAudioUrl(null);
           console.log(`Page ${page} not found - triggering bulk generation`);
 
-          // Trigger bulk generation for current page + next 2 pages
           const pagesToGenerate = [
             { page: page, language },
             { page: page + 1, language },
             { page: page + 2, language },
           ];
 
-          // Fire and forget - don't wait for generation to complete
           resourcesApi
             .bulkGeneratePages(resourceId, { pages: pagesToGenerate })
             .then(() => {
               console.log("Bulk generation started for pages", pagesToGenerate);
-              // After generation completes, try fetching the page again
               resourcesApi
                 .getPage(resourceId, page, language)
                 .then((data) => {
@@ -55,7 +51,6 @@ export function ResourceViewer({
                   setIsLoadingPage(false);
                 })
                 .catch(() => {
-                  // If still not available, just stop loading
                   setIsLoadingPage(false);
                 });
             })
@@ -73,28 +68,32 @@ export function ResourceViewer({
     [resourceId, language]
   );
 
-  // Debounce page changes
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       fetchPageData(currentPage);
-    }, 500); // 500ms debounce
+    }, 500);
 
     return () => clearTimeout(timeoutId);
   }, [currentPage, fetchPageData]);
 
+  const handleAudioEnded = useCallback(() => {
+    if (isAutoplayEnabled) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  }, [isAutoplayEnabled]);
+
   return (
     <>
-      {/* PDF Viewer */}
       <div className="mb-8">
         <PdfViewer
           file={pdfUrl}
           mode="single"
           className="h-[800px]"
+          page={currentPage}
           onPageChange={setCurrentPage}
         />
       </div>
 
-      {/* Audio Player */}
       <div className="sticky bottom-0 bg-white pb-4 dark:bg-black">
         {isLoadingPage ? (
           <div className="border border-zinc-200 bg-white p-4 dark:border-white/10 dark:bg-zinc-900">
@@ -106,7 +105,44 @@ export function ResourceViewer({
             </div>
           </div>
         ) : audioUrl ? (
-          <Player audioUrl={audioUrl} />
+          <div className="space-y-2">
+            <div className="relative z-10 flex items-center justify-end px-4 pb-2">
+              <button
+                onClick={() => setIsAutoplayEnabled(!isAutoplayEnabled)}
+                className={
+                  isAutoplayEnabled
+                    ? "relative z-10 flex items-center gap-2 rounded bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600"
+                    : "relative z-10 flex items-center gap-2 rounded bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-200 dark:bg-zinc-800 dark:text-white dark:hover:bg-zinc-700"
+                }
+              >
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                Autoplay: {isAutoplayEnabled ? "On" : "Off"}
+              </button>
+            </div>
+            <Player
+              audioUrl={audioUrl}
+              onEnded={handleAudioEnded}
+              autoplay={isAutoplayEnabled}
+            />
+          </div>
         ) : (
           <div className="border border-zinc-200 bg-white p-4 dark:border-white/10 dark:bg-zinc-900">
             <p className="text-center text-sm text-zinc-600 dark:text-zinc-400">

@@ -25,6 +25,8 @@ interface PdfViewerProps {
   className?: string;
   /** Callback when page changes */
   onPageChange?: (page: number) => void;
+  /** Controlled page number */
+  page?: number;
 }
 
 export function PdfViewer({
@@ -33,6 +35,7 @@ export function PdfViewer({
   initialZoom = 1.0,
   className,
   onPageChange,
+  page,
 }: PdfViewerProps) {
   const [numPages, setNumPages] = React.useState<number>(0);
   const [currentPage, setCurrentPage] = React.useState<number>(1);
@@ -41,9 +44,16 @@ export function PdfViewer({
   const [pageWidth, setPageWidth] = React.useState<number>(0);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
+  // Sync internal state with external page prop
+  React.useEffect(() => {
+    if (page !== undefined && page !== currentPage) {
+      setCurrentPage(page);
+    }
+  }, [page]);
+
   // Call onPageChange when currentPage changes
   React.useEffect(() => {
-    if (onPageChange) {
+    if (onPageChange && currentPage !== page) {
       onPageChange(currentPage);
     }
   }, [currentPage, onPageChange]);
