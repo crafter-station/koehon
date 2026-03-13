@@ -63,11 +63,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file size (10MB max)
-    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    // Validate file size (20MB max)
+    const maxSize = 20 * 1024 * 1024; // 20MB in bytes
     if (file.size > maxSize) {
       return NextResponse.json(
-        { error: "File size must be less than 10MB" } as ApiErrorResponse,
+        { error: "File size must be less than 20MB" } as ApiErrorResponse,
         { status: 400 }
       );
     }

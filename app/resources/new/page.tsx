@@ -96,7 +96,7 @@ export default function NewResourcePage() {
             <label className="mb-2 block text-sm font-medium text-zinc-900 dark:text-white">
               Document File
             </label>
-            <FileDropzone onFileSelect={setFile} />
+            <FileDropzone onFileSelect={setFile} maxSize={20}/>
           </div>
 
           {/* Language Select */}
