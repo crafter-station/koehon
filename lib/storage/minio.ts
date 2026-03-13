@@ -16,7 +16,7 @@ export const minioClient = new Minio.Client(minioConfig);
 export const BUCKET_NAME = process.env.MINIO_BUCKET_NAME || "koehon-pdfs";
 
 /**
- * Initialize MinIO storage - ensure bucket exists
+ * Initialize MinIO storage - ensure bucket exists and is public
  */
 export async function initializeStorage(): Promise<void> {
   try {
@@ -25,6 +25,25 @@ export async function initializeStorage(): Promise<void> {
     if (!bucketExists) {
       await minioClient.makeBucket(BUCKET_NAME, "us-east-1");
       console.log(`Bucket "${BUCKET_NAME}" created successfully`);
+
+      // Set bucket policy to allow public read access (only on creation)
+      const publicReadPolicy = {
+        Version: "2012-10-17",
+        Statement: [
+          {
+            Effect: "Allow",
+            Principal: { AWS: ["*"] },
+            Action: ["s3:GetObject"],
+            Resource: [`arn:aws:s3:::${BUCKET_NAME}/*`],
+          },
+        ],
+      };
+
+      await minioClient.setBucketPolicy(
+        BUCKET_NAME,
+        JSON.stringify(publicReadPolicy)
+      );
+      console.log(`Bucket "${BUCKET_NAME}" policy set to public read`);
     }
   } catch (error) {
     console.error("Failed to initialize MinIO storage:", error);

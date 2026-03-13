@@ -6,11 +6,25 @@ import { Header } from "@/components/layout/header";
 import { FileDropzone } from "@/components/ui/file-dropzone";
 import { LoaderDotMatrix } from "@/components/elements/loader-dot-matrix";
 import { resourcesApi } from "@/lib/api";
+import { screenshotPage } from "@/components/elements/pdf-utils";
 
 const LANGUAGES = [
   { code: "en", name: "English" },
   { code: "es", name: "Spanish" },
 ];
+
+// Helper function to convert base64 to File
+function base64ToFile(base64: string, filename: string): File {
+  const arr = base64.split(",");
+  const mime = arr[0].match(/:(.*?);/)?.[1] || "image/png";
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new File([u8arr], filename, { type: mime });
+}
 
 export default function NewResourcePage() {
   const router = useRouter();
@@ -31,8 +45,22 @@ export default function NewResourcePage() {
     setError(null);
 
     try {
+      // Generate screenshot of first page as WebP (optimized for web)
+      const screenshotBase64 = await screenshotPage(
+        file,
+        1,
+        2,
+        "image/webp",
+        0.8
+      );
+      const coverFile = base64ToFile(
+        screenshotBase64,
+        `${file.name.replace(".pdf", "")}-cover.webp`
+      );
+
       await resourcesApi.create({
         file,
+        cover: coverFile,
         language,
       });
       router.push("/resources");

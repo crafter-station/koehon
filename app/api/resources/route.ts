@@ -22,12 +22,20 @@ export async function POST(request: NextRequest) {
     // Get form data
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
+    const cover = formData.get("cover") as File | null;
     const language = formData.get("language") as string;
 
     // Validate inputs
     if (!file) {
       return NextResponse.json(
         { error: "File is required" } as ApiErrorResponse,
+        { status: 400 }
+      );
+    }
+
+    if (!cover) {
+      return NextResponse.json(
+        { error: "Cover image is required" } as ApiErrorResponse,
         { status: 400 }
       );
     }
@@ -47,6 +55,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate cover type
+    if (!cover.type.includes("image")) {
+      return NextResponse.json(
+        { error: "Cover must be an image" } as ApiErrorResponse,
+        { status: 400 }
+      );
+    }
+
     // Validate file size (10MB max)
     const maxSize = 10 * 1024 * 1024; // 10MB in bytes
     if (file.size > maxSize) {
@@ -56,17 +72,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate unique object name for the file
-    const objectName = generateObjectName(userId, file.name);
+    // Generate unique object names
+    const pdfObjectName = generateObjectName(userId, file.name);
+    const coverObjectName = generateObjectName(userId, cover.name);
 
-    // Upload file to MinIO
-    const { url, etag } = await uploadFile(file, objectName);
+    // Upload both files to MinIO
+    const [pdfUpload, coverUpload] = await Promise.all([
+      uploadFile(file, pdfObjectName),
+      uploadFile(cover, coverObjectName),
+    ]);
 
-    console.log("File uploaded to MinIO:", {
-      name: file.name,
-      objectName,
-      url,
-      etag,
+    console.log("Files uploaded to MinIO:", {
+      pdf: {
+        name: file.name,
+        objectName: pdfObjectName,
+        url: pdfUpload.url,
+        etag: pdfUpload.etag,
+      },
+      cover: {
+        name: cover.name,
+        objectName: coverObjectName,
+        url: coverUpload.url,
+        etag: coverUpload.etag,
+      },
       language,
       userId,
     });
@@ -76,8 +104,8 @@ export async function POST(request: NextRequest) {
       .insert(resources)
       .values({
         title: file.name.replace(".pdf", ""),
-        pdfUrl: url,
-        coverUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop",
+        pdfUrl: pdfUpload.url,
+        coverUrl: coverUpload.url,
         userId,
         language,
       })

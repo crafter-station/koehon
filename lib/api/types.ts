@@ -18,6 +18,7 @@ export interface ApiErrorResponse {
 // Resource Types
 export interface CreateResourceRequest {
   file: File;
+  cover: File;
   language: string;
 }
 

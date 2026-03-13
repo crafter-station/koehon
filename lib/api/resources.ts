@@ -10,6 +10,7 @@ export const resourcesApi = {
   ): Promise<CreateResourceResponse> {
     const formData = new FormData();
     formData.append("file", data.file);
+    formData.append("cover", data.cover);
     formData.append("language", data.language);
 
     return apiClient.postFormData<CreateResourceResponse>(
