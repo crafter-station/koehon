@@ -41,4 +41,14 @@ export const resourcesApi = {
       data
     );
   },
+
+  async updateTitle(
+    resourceId: string,
+    title: string
+  ): Promise<{ success: boolean }> {
+    return apiClient.patch<{ success: boolean }, { title: string }>(
+      `/resources/${resourceId}`,
+      { title }
+    );
+  },
 };

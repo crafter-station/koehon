@@ -2,7 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
-import { resources } from "@/lib/db/schema";
+import { resources, resourcePages } from "@/lib/db/schema";
 import { desc, eq, count } from "drizzle-orm";
 
 export interface GetResourcesResult {
@@ -86,4 +86,46 @@ export async function getResource(id: string): Promise<Resource | null> {
   }
 
   return resource;
+}
+
+export interface ResourceWithLoadedPages {
+  resource: Resource;
+  loadedPages: Array<{
+    page: number;
+    language: string;
+  }>;
+}
+
+export async function getResourceWithLoadedPages(
+  id: string
+): Promise<ResourceWithLoadedPages | null> {
+  const { userId } = await auth();
+
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+
+  const [resource] = await db
+    .select()
+    .from(resources)
+    .where(eq(resources.id, id))
+    .limit(1);
+
+  if (!resource || resource.userId !== userId) {
+    return null;
+  }
+
+  const loadedPages = await db
+    .select({
+      page: resourcePages.page,
+      language: resourcePages.language,
+    })
+    .from(resourcePages)
+    .where(eq(resourcePages.resourceId, id))
+    .orderBy(resourcePages.language, resourcePages.page);
+
+  return {
+    resource,
+    loadedPages,
+  };
 }
