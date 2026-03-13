@@ -53,11 +53,13 @@ export default async function ResourcePage({
         </div>
 
         {/* Resource Viewer with PDF and Audio Player */}
-        <ResourceViewer
-          resourceId={resource.id}
-          pdfUrl={resource.pdfUrl}
-          language={resource.language}
-        />
+        <div className="mx-auto max-w-5xl">
+          <ResourceViewer
+            resourceId={resource.id}
+            pdfUrl={resource.pdfUrl}
+            language={resource.language}
+          />
+        </div>
       </main>
     </div>
   );

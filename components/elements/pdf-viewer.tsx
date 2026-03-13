@@ -113,7 +113,8 @@ export function PdfViewer({
     <div
       data-slot="pdf-viewer"
       className={cn(
-        "flex flex-col border border-border rounded-lg bg-background overflow-hidden",
+        "flex flex-col border border-border rounded-lg bg-background",
+        viewMode === "scroll" && "overflow-hidden",
         className,
       )}
     >
@@ -227,8 +228,8 @@ export function PdfViewer({
       <div
         ref={containerRef}
         className={cn(
-          "flex-1 overflow-auto bg-muted/30",
-          viewMode === "scroll" && "p-4",
+          "bg-muted/30",
+          viewMode === "scroll" && "flex-1 overflow-auto p-4",
           viewMode !== "scroll" && "flex items-start justify-center p-4",
         )}
       >

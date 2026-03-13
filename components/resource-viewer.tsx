@@ -88,13 +88,13 @@ export function ResourceViewer({
         <PdfViewer
           file={pdfUrl}
           mode="single"
-          className="h-[800px]"
+          className=""
           page={currentPage}
           onPageChange={setCurrentPage}
         />
       </div>
 
-      <div className="sticky bottom-0 bg-white pb-4 dark:bg-black">
+      <div className="bg-white pb-4 dark:bg-black">
         {isLoadingPage ? (
           <div className="border border-zinc-200 bg-white p-4 dark:border-white/10 dark:bg-zinc-900">
             <div className="flex flex-col items-center justify-center py-4">
