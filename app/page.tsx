@@ -8,7 +8,7 @@ export default function Home() {
     <div className="min-h-screen bg-white text-black dark:bg-black dark:text-white">
       <Header />
       <Banner />
-      <main className="px-4 py-16 sm:px-6 sm:py-24">
+      <main className="px-4 py-8 sm:px-6 sm:py-12">
         <div className="mx-auto max-w-5xl">
           <HeroSection />
           <FeaturesSection />

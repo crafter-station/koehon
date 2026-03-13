@@ -5,15 +5,7 @@ import Link from "next/link";
 
 export function HeroSection() {
   return (
-    <div className="mb-16 text-center">
-      {/* Badge */}
-      <div className="mb-8 flex justify-center">
-        <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-1.5 text-sm dark:border-white/10 dark:bg-white/5">
-          <span className="text-2xl">声本</span>
-          <span className="h-4 w-px bg-zinc-300 dark:bg-zinc-600"></span>
-          <span className="text-zinc-600 dark:text-zinc-400">AI-Powered Audio Documents</span>
-        </div>
-      </div>
+    <div className="mb-12 text-center">
 
       {/* Animated Hero */}
       <div className="mb-6 sm:mb-8">
@@ -21,7 +13,7 @@ export function HeroSection() {
       </div>
 
       {/* Description */}
-      <p className="mx-auto mb-10 max-w-2xl px-4 text-base leading-relaxed text-zinc-600 dark:text-zinc-400 sm:mb-12 sm:px-0 md:text-lg lg:text-xl">
+      <p className="mx-auto mb-8 max-w-2xl px-4 text-base leading-relaxed text-zinc-600 dark:text-zinc-400 sm:mb-10 sm:px-0 md:text-lg lg:text-xl">
         Transform your documents into audio. Listen to PDFs, translate content,
         and consume information on the go with AI-powered voice technology.
       </p>
