@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { ResourceCard } from "@/components/ui/resource-card";
 import { Header } from "@/components/layout/header";
-import { getResources, getTotalAudioHours } from "./actions";
+import { getResources, getTotalAudioHours, getThisWeekAudioHours } from "./actions";
 
 export default async function ResourcesPage({
   searchParams,
@@ -21,9 +21,10 @@ export default async function ResourcesPage({
   const page = parseInt(params.page || "1");
 
   // Fetch resources and total audio hours using server actions
-  const [{ resources, total, totalPages }, totalHours] = await Promise.all([
+  const [{ resources, total, totalPages }, totalHours, thisWeekHours] = await Promise.all([
     getResources(page),
     getTotalAudioHours(),
+    getThisWeekAudioHours(),
   ]);
 
   return (
@@ -66,7 +67,7 @@ export default async function ResourcesPage({
           <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-white/10 dark:bg-zinc-900">
             <p className="text-sm text-zinc-600 dark:text-zinc-400">This Week</p>
             <p className="mt-1 text-2xl font-bold text-zinc-900 dark:text-white">
-              3
+              {thisWeekHours}
             </p>
           </div>
         </div>
