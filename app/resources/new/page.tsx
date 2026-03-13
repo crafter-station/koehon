@@ -6,7 +6,9 @@ import { Header } from "@/components/layout/header";
 import { FileDropzone } from "@/components/ui/file-dropzone";
 import { LoaderDotMatrix } from "@/components/elements/loader-dot-matrix";
 import { resourcesApi } from "@/lib/api";
-import { screenshotPage } from "@/components/elements/pdf-utils";
+
+// Disable static generation for this page (client-only)
+export const dynamic = 'force-dynamic';
 
 const LANGUAGES = [
   { code: "en", name: "English" },
@@ -45,6 +47,9 @@ export default function NewResourcePage() {
     setError(null);
 
     try {
+      // Dynamically import screenshotPage to avoid SSR issues with pdfjs
+      const { screenshotPage } = await import("@/components/elements/pdf-utils");
+
       // Generate screenshot of first page as WebP (optimized for web)
       const screenshotBase64 = await screenshotPage(
         file,
