@@ -121,9 +121,9 @@ export function PdfViewer({
       )}
     >
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-4 p-3 border-b border-border bg-muted/50">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 p-2 sm:p-3 border-b border-border bg-muted/50">
         {/* Mode Switcher */}
-        <div className="flex items-center gap-1 border border-border rounded-md p-1 bg-background">
+        <div className="flex items-center justify-center sm:justify-start gap-1 border border-border rounded-md p-1 bg-background">
           <button
             type="button"
             onClick={() => setViewMode("single")}
@@ -164,7 +164,7 @@ export function PdfViewer({
 
         {/* Page Navigation */}
         {viewMode !== "scroll" && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2">
             <button
               type="button"
               onClick={goToPreviousPage}
@@ -196,7 +196,7 @@ export function PdfViewer({
         )}
 
         {/* Zoom Controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center sm:justify-end gap-2">
           <button
             type="button"
             onClick={handleZoomOut}
