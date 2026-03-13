@@ -51,4 +51,8 @@ export const resourcesApi = {
       { title }
     );
   },
+
+  async delete(resourceId: string): Promise<{ success: boolean }> {
+    return apiClient.delete<{ success: boolean }>(`/resources/${resourceId}`);
+  },
 };

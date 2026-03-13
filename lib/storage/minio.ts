@@ -131,3 +131,22 @@ export function generateObjectName(
   const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, "_");
   return `${userId}/${timestamp}-${random}-${sanitizedFilename}`;
 }
+
+/**
+ * Extract object name from MinIO URL
+ * URL format: https://endpoint/bucket/objectName
+ */
+export function extractObjectNameFromUrl(url: string): string | null {
+  try {
+    const urlObj = new URL(url);
+    const pathParts = urlObj.pathname.split("/");
+    // Remove empty strings and bucket name, rest is the object name
+    const relevantParts = pathParts.filter(
+      (part) => part && part !== BUCKET_NAME
+    );
+    return relevantParts.join("/");
+  } catch (error) {
+    console.error("Failed to extract object name from URL:", url, error);
+    return null;
+  }
+}

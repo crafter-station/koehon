@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { LoaderDotMatrix } from "./elements/loader-dot-matrix";
@@ -69,11 +70,14 @@ export function ResourceSettingsForm({
   defaultLanguage,
   loadedPages,
 }: ResourceSettingsFormProps) {
+  const router = useRouter();
   const [title, setTitle] = useState(currentTitle);
   const [pageRanges, setPageRanges] = useState("");
   const [language, setLanguage] = useState(defaultLanguage);
   const [isUpdatingTitle, setIsUpdatingTitle] = useState(false);
   const [isPreloading, setIsPreloading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [message, setMessage] = useState<{
     type: "success" | "error";
     text: string;
@@ -155,6 +159,25 @@ export function ResourceSettingsForm({
       setMessage({ type: "error", text: "Failed to pre-load pages" });
     } finally {
       setIsPreloading(false);
+    }
+  };
+
+  const handleDeleteResource = async () => {
+    setIsDeleting(true);
+    setMessage(null);
+
+    try {
+      await resourcesApi.delete(resourceId);
+      setMessage({ type: "success", text: "Resource deleted successfully" });
+
+      // Redirect to resources list after a short delay
+      setTimeout(() => {
+        router.push("/resources");
+      }, 1000);
+    } catch (error) {
+      setMessage({ type: "error", text: "Failed to delete resource" });
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -264,6 +287,57 @@ export function ResourceSettingsForm({
                 </span>
               </div>
             ))}
+          </div>
+        )}
+      </div>
+
+      <div className="border border-red-200 bg-red-50 p-6 dark:border-red-900/50 dark:bg-red-950/20">
+        <h2 className="mb-2 text-xl font-semibold text-red-900 dark:text-red-100">
+          Delete Resource
+        </h2>
+        <p className="mb-4 text-sm text-red-700 dark:text-red-300">
+          This will permanently delete the resource, all its pages, and all
+          associated files (PDF, cover, audio). This action cannot be undone.
+        </p>
+
+        {!showDeleteConfirm ? (
+          <Button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
+          >
+            Delete Resource
+          </Button>
+        ) : (
+          <div className="space-y-4">
+            <div className="rounded border border-red-300 bg-red-100 p-4 dark:border-red-800 dark:bg-red-900/30">
+              <p className="mb-4 font-semibold text-red-900 dark:text-red-100">
+                Are you sure? This action cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleDeleteResource}
+                  disabled={isDeleting}
+                  className="bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
+                >
+                  {isDeleting ? "Deleting..." : "Yes, Delete Permanently"}
+                </Button>
+                <Button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={isDeleting}
+                  className="bg-zinc-200 text-zinc-900 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-white dark:hover:bg-zinc-600"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+            {isDeleting && (
+              <div className="flex items-center gap-3 rounded border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-950/20">
+                <LoaderDotMatrix rows={3} cols={5} dotSize={6} />
+                <p className="text-sm text-red-700 dark:text-red-300">
+                  Deleting resource and all associated files...
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>
