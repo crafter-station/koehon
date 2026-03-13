@@ -1,4 +1,4 @@
-import { pgTable, varchar, timestamp, text, integer } from "drizzle-orm/pg-core";
+import { pgTable, varchar, timestamp, text, integer, unique } from "drizzle-orm/pg-core";
 import { nanoid } from "nanoid";
 
 export const resources = pgTable("resources", {
@@ -27,7 +27,10 @@ export const resourcePages = pgTable("resource_pages", {
   audioUrl: varchar("audio_url", { length: 512 }).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  // Unique constraint: one page per language per resource
+  uniqueResourcePageLanguage: unique().on(table.resourceId, table.page, table.language),
+}));
 
 export type Resource = typeof resources.$inferSelect;
 export type NewResource = typeof resources.$inferInsert;
