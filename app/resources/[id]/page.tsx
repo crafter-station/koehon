@@ -1,8 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect, notFound } from "next/navigation";
 import { Header } from "@/components/layout/header";
-import { Player } from "@/components/ui/player";
-import { PdfViewer } from "@/components/elements/pdf-viewer";
+import { ResourceViewer } from "@/components/resource-viewer";
 import { getResource } from "../actions";
 
 export default async function ResourcePage({
@@ -44,15 +43,12 @@ export default async function ResourcePage({
           </p>
         </div>
 
-        {/* PDF Viewer */}
-        <div className="mb-8">
-          <PdfViewer file={resource.pdfUrl} mode="single" className="h-[800px]" />
-        </div>
-
-        {/* Audio Player */}
-        <div className="sticky bottom-0 bg-white pb-4 dark:bg-black">
-          <Player audioUrl="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" />
-        </div>
+        {/* Resource Viewer with PDF and Audio Player */}
+        <ResourceViewer
+          resourceId={resource.id}
+          pdfUrl={resource.pdfUrl}
+          language={resource.language}
+        />
       </main>
     </div>
   );

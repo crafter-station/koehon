@@ -2,6 +2,7 @@ import { apiClient } from "./client";
 import type {
   CreateResourceRequest,
   CreateResourceResponse,
+  ResourcePageResponse,
 } from "./types";
 
 export const resourcesApi = {
@@ -16,6 +17,16 @@ export const resourcesApi = {
     return apiClient.postFormData<CreateResourceResponse>(
       "/resources",
       formData
+    );
+  },
+
+  async getPage(
+    resourceId: string,
+    page: number,
+    language: string
+  ): Promise<ResourcePageResponse> {
+    return apiClient.get<ResourcePageResponse>(
+      `/resources/${resourceId}/pages/${page}?language=${language}`
     );
   },
 };

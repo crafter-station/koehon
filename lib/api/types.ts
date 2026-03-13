@@ -37,3 +37,14 @@ export interface CreateResourceResponse {
   success: boolean;
   resource: ResourceResponse;
 }
+
+export interface ResourcePageResponse {
+  id: string;
+  resourceId: string;
+  page: number;
+  language: string;
+  content: string;
+  audioUrl: string;
+  createdAt: string;
+  updatedAt: string;
+}
