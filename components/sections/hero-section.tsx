@@ -1,5 +1,6 @@
 import { Button } from "../ui/button";
 import { ArrowRightIcon, GitHubIcon, StarIcon } from "../icons/icons";
+import { DocumentMachineAnimation } from "../animations/document-machine-animation";
 import Link from "next/link";
 
 export function HeroSection() {
@@ -14,13 +15,10 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* Main Heading */}
-      <h1 className="mb-3 bg-gradient-to-br from-black to-zinc-600 bg-clip-text font-mono text-5xl font-bold tracking-tight text-transparent dark:from-white dark:to-zinc-400 sm:mb-4 sm:text-6xl md:text-7xl lg:text-8xl">
-        Listen to Your
-      </h1>
-      <h2 className="mb-6 bg-gradient-to-br from-zinc-600 to-zinc-400 bg-clip-text font-mono text-3xl font-bold tracking-tight text-transparent dark:from-zinc-400 dark:to-zinc-600 sm:mb-8 sm:text-5xl md:text-6xl lg:text-7xl">
-        Documents
-      </h2>
+      {/* Animated Hero */}
+      <div className="mb-6 sm:mb-8">
+        <DocumentMachineAnimation />
+      </div>
 
       {/* Description */}
       <p className="mx-auto mb-10 max-w-2xl px-4 text-base leading-relaxed text-zinc-600 dark:text-zinc-400 sm:mb-12 sm:px-0 md:text-lg lg:text-xl">
