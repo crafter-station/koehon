@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { ResourceSettingsForm } from "@/components/resource-settings-form";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { getResourceWithLoadedPages } from "../../actions";
 
 export default async function ResourceSettingsPage({
@@ -28,6 +29,14 @@ export default async function ResourceSettingsPage({
     <div className="min-h-screen bg-white dark:bg-black">
       <Header />
       <div className="container mx-auto max-w-4xl px-4 py-8">
+        <Breadcrumb
+          items={[
+            { label: "Resources", href: "/resources" },
+            { label: resource.title, href: `/resources/${resource.id}` },
+            { label: "Settings" },
+          ]}
+        />
+
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">
             Resource Settings

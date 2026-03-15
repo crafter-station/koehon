@@ -3,6 +3,7 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { Header } from "@/components/layout/header";
 import { ResourceViewer } from "@/components/resource-viewer";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { getResource } from "../actions";
 
 export default async function ResourcePage({
@@ -39,6 +40,13 @@ export default async function ResourcePage({
       <Header />
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
+        <Breadcrumb
+          items={[
+            { label: "Resources", href: "/resources" },
+            { label: resource.title },
+          ]}
+        />
+
         {/* Page Header */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>

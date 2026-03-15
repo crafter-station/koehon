@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { ResourceCard } from "@/components/ui/resource-card";
 import { Header } from "@/components/layout/header";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { getResources, getTotalAudioHours, getThisWeekAudioHours } from "./actions";
 
 export default async function ResourcesPage({
@@ -33,6 +34,8 @@ export default async function ResourcesPage({
 
       {/* Main Content */}
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
+        <Breadcrumb items={[{ label: "Resources" }]} />
+
         {/* Page Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
