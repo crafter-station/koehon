@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { resourcePages, resources } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and, count } from "drizzle-orm";
 import pLimit from "p-limit";
 import type { ApiErrorResponse, BulkGeneratePagesResponse } from "@/lib/api/types";
 import {
@@ -13,6 +13,7 @@ import {
 import { fetchPdfAsFile } from "@/lib/pdf-utils.server";
 import { uploadFile, generateObjectName } from "@/lib/storage/minio";
 import { getAudioDuration } from "@/lib/audio-utils";
+import { USER_TIERS, getMaxPagesForTier, hasUnlimitedPages } from "@/lib/config/tiers";
 
 interface BulkPageRequest {
   pages: Array<{
@@ -94,6 +95,36 @@ export async function POST(
     const skippedCount = body.pages.length - pagesToProcess.length;
     if (skippedCount > 0) {
       console.log(`Skipping ${skippedCount} pages that already exist`);
+    }
+
+    // Check user tier and enforce limits
+    const client = await clerkClient();
+    const user = await client.users.getUser(userId);
+    const userTier = (user.privateMetadata?.tier as string) || USER_TIERS.FREE;
+
+    // Only enforce limits for users without unlimited pages
+    if (!hasUnlimitedPages(userTier)) {
+      const maxPages = getMaxPagesForTier(userTier);
+
+      // Count existing pages for this user
+      const [{ total: existingCount }] = await db
+        .select({ total: count() })
+        .from(resourcePages)
+        .innerJoin(resources, eq(resourcePages.resourceId, resources.id))
+        .where(eq(resources.userId, userId));
+
+      const newPagesToCreate = pagesToProcess.length;
+      const totalAfterGeneration = existingCount + newPagesToCreate;
+
+      if (totalAfterGeneration > maxPages) {
+        const remaining = Math.max(0, maxPages - existingCount);
+        return NextResponse.json(
+          {
+            error: `Free tier limit exceeded. You have ${existingCount}/${maxPages} pages. You can only generate ${remaining} more page${remaining !== 1 ? "s" : ""}.`,
+          } as ApiErrorResponse,
+          { status: 403 }
+        );
+      }
     }
 
     // Create a limit function for 3 concurrent operations
