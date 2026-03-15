@@ -53,7 +53,8 @@ export function PdfViewer({
       isUpdatingFromProp.current = true;
       setCurrentPage(page);
     }
-  }, [page, currentPage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   // Call onPageChange when currentPage changes (only if not from prop)
   React.useEffect(() => {
@@ -68,7 +69,10 @@ export function PdfViewer({
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     setNumPages(numPages);
-    setCurrentPage(1);
+    // Only set to page 1 if no external page prop is provided
+    if (page === undefined) {
+      setCurrentPage(1);
+    }
   }
 
   // Calculate page width based on container and zoom

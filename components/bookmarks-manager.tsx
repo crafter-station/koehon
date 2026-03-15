@@ -128,25 +128,29 @@ export function BookmarksManager({ resourceId }: BookmarksManagerProps) {
                 </div>
               </div>
               <div className="col-span-4 flex items-center justify-end gap-2">
-                <Button
-                  onClick={() => handleGoToBookmark(bookmark.page)}
-                  className="bg-zinc-900 text-sm text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
-                >
-                  Go to Page
-                </Button>
-                <Button
-                  onClick={() => handleDelete(bookmark.id)}
-                  disabled={deletingId === bookmark.id}
-                  className="bg-red-600 text-sm text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
-                >
-                  {deletingId === bookmark.id ? (
-                    <span className="flex items-center gap-2">
-                      <LoaderDotMatrix rows={1} cols={3} dotSize={4} />
+                {deletingId === bookmark.id ? (
+                  <div className="flex items-center gap-2">
+                    <LoaderDotMatrix rows={1} cols={3} dotSize={4} />
+                    <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                      Deleting...
                     </span>
-                  ) : (
-                    "Delete"
-                  )}
-                </Button>
+                  </div>
+                ) : (
+                  <>
+                    <Button
+                      onClick={() => handleGoToBookmark(bookmark.page)}
+                      className="bg-zinc-900 text-sm text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+                    >
+                      Go to Page
+                    </Button>
+                    <Button
+                      onClick={() => handleDelete(bookmark.id)}
+                      className="bg-red-600 text-sm text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
+                    >
+                      Delete
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           ))}
