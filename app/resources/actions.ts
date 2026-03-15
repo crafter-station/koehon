@@ -2,7 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
-import { resources, resourcePages } from "@/lib/db/schema";
+import { resources, resourcePages, bookmarks } from "@/lib/db/schema";
 import { desc, eq, count, sum, and, gte } from "drizzle-orm";
 
 export interface GetResourcesResult {
@@ -185,4 +185,56 @@ export async function getThisWeekAudioHours(): Promise<number> {
   // Convert seconds to hours and round to 1 decimal place
   const totalHours = Number(totalSeconds) / 3600;
   return Math.round(totalHours * 10) / 10;
+}
+
+export async function getLatestBookmarksMap(): Promise<Record<string, number>> {
+  const { userId } = await auth();
+
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+
+  // Get all user's resources
+  const userResources = await db
+    .select({ id: resources.id })
+    .from(resources)
+    .where(eq(resources.userId, userId));
+
+  const resourceIds = userResources.map((r) => r.id);
+
+  if (resourceIds.length === 0) {
+    return {};
+  }
+
+  // Get the latest bookmark for each resource
+  const latestBookmarks = await db
+    .select({
+      resourceId: bookmarks.resourceId,
+      page: bookmarks.page,
+      createdAt: bookmarks.createdAt,
+    })
+    .from(bookmarks)
+    .where(eq(bookmarks.resourceId, resourceIds[0]))
+    .orderBy(desc(bookmarks.createdAt))
+    .limit(1);
+
+  // Build a map for all resources
+  const bookmarksMap: Record<string, number> = {};
+
+  for (const resourceId of resourceIds) {
+    const resourceBookmarks = await db
+      .select({
+        page: bookmarks.page,
+      })
+      .from(bookmarks)
+      .where(eq(bookmarks.resourceId, resourceId))
+      .orderBy(desc(bookmarks.createdAt))
+      .limit(1);
+
+    if (resourceBookmarks.length > 0) {
+      bookmarksMap[resourceId] = resourceBookmarks[0].page;
+    }
+  }
+
+  return bookmarksMap;
 }

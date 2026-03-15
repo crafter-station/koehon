@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { ResourceCard } from "@/components/ui/resource-card";
 import { Header } from "@/components/layout/header";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
-import { getResources, getTotalAudioHours, getThisWeekAudioHours } from "./actions";
+import { getResources, getTotalAudioHours, getThisWeekAudioHours, getLatestBookmarksMap } from "./actions";
 
 export default async function ResourcesPage({
   searchParams,
@@ -22,10 +22,11 @@ export default async function ResourcesPage({
   const page = parseInt(params.page || "1");
 
   // Fetch resources and total audio hours using server actions
-  const [{ resources, total, totalPages }, totalHours, thisWeekHours] = await Promise.all([
+  const [{ resources, total, totalPages }, totalHours, thisWeekHours, bookmarksMap] = await Promise.all([
     getResources(page),
     getTotalAudioHours(),
     getThisWeekAudioHours(),
+    getLatestBookmarksMap(),
   ]);
 
   return (
@@ -86,6 +87,7 @@ export default async function ResourcesPage({
                 coverUrl: resource.coverUrl,
                 createdAt: resource.createdAt,
               }}
+              lastBookmarkPage={bookmarksMap[resource.id]}
             />
           ))}
         </div>
