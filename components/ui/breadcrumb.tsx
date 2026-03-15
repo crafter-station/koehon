@@ -12,7 +12,7 @@ interface BreadcrumbProps {
 export function Breadcrumb({ items }: BreadcrumbProps) {
   return (
     <nav className="mb-6" aria-label="Breadcrumb">
-      <ol className="flex items-center gap-2 text-sm">
+      <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm">
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
 
@@ -38,7 +38,7 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
               )}
               {!isLast && (
                 <svg
-                  className="h-4 w-4 text-zinc-400 dark:text-zinc-600"
+                  className="h-3 w-3 text-zinc-400 dark:text-zinc-600 sm:h-4 sm:w-4"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth={2}
