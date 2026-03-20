@@ -232,7 +232,9 @@ export function ResourceViewer({
                     d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
                   />
                 </svg>
-                {currentPageBookmark ? currentPageBookmark.name : "Bookmark"}
+                <span className="hidden sm:inline">
+                  {currentPageBookmark ? currentPageBookmark.name : "Bookmark"}
+                </span>
               </button>
               <div className="flex items-center gap-2">
                 <button
@@ -254,7 +256,9 @@ export function ResourceViewer({
                       d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                     />
                   </svg>
-                  {isReprocessing ? "Re-processing..." : "Re-process"}
+                  <span className="hidden sm:inline">
+                    {isReprocessing ? "Re-processing..." : "Re-process"}
+                  </span>
                 </button>
                 <button
                   onClick={() => setIsAutoplayEnabled(!isAutoplayEnabled)}
@@ -263,6 +267,7 @@ export function ResourceViewer({
                       ? "relative z-10 flex items-center gap-2 rounded bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600"
                       : "relative z-10 flex items-center gap-2 rounded bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-200 dark:bg-zinc-800 dark:text-white dark:hover:bg-zinc-700"
                   }
+                  title={`Autoplay: ${isAutoplayEnabled ? "On" : "Off"}`}
                 >
                   <svg
                     className="h-4 w-4"
@@ -283,7 +288,9 @@ export function ResourceViewer({
                       d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  Autoplay: {isAutoplayEnabled ? "On" : "Off"}
+                  <span className="hidden sm:inline">
+                    Autoplay: {isAutoplayEnabled ? "On" : "Off"}
+                  </span>
                 </button>
               </div>
             </div>
