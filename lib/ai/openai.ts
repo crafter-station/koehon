@@ -107,7 +107,7 @@ export class OpenAiAudioGenerator extends AudioGenerator {
     const openaiProvider = getAISDKProvider(this.customApiKey);
 
     const audio = await experimental_generateSpeech({
-      model: openaiProvider.speech("gpt-4o-mini-tts"),
+      model: openaiProvider.speech("gpt-4o-mini-tts-2025-12-15"),
       text: text,
       voice: "alloy",
     });
