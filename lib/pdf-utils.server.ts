@@ -51,7 +51,7 @@ export async function fetchPdfAsFile(
  */
 async function loadPdfLibDocument(file: File) {
   const arrayBuffer = await file.arrayBuffer();
-  return await PDFDocument.load(arrayBuffer);
+  return await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
 }
 
 /**
