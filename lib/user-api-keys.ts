@@ -32,11 +32,15 @@ export async function getUserApiKey(
   }
 }
 
-/**
- * Get the OpenAI API key to use for a specific user
- * Returns the user's custom key if available, otherwise the default key
- */
-export async function getOpenAiApiKey(userId: string): Promise<string> {
-  const customKey = await getUserApiKey(userId, "openai");
-  return customKey || process.env.OPENAI_API_KEY || "";
+export async function getApiKey(userId: string, provider: string): Promise<string> {
+  const customKey = await getUserApiKey(userId, provider);
+
+  switch (provider) {
+    case "openai":
+      return customKey || process.env.OPENAI_API_KEY || "";
+    case "gemini":
+      return customKey || process.env.GEMINI_API_KEY || "";
+    default:
+      throw new Error(`Unsupported provider: ${provider}`);
+  }
 }
