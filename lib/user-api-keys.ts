@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { userApiKeys } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { decrypt } from "@/lib/encryption";
+import { AI_PROVIDERS } from "./config/providers";
 
 /**
  * Get a user's custom API key for a specific provider
@@ -9,7 +10,7 @@ import { decrypt } from "@/lib/encryption";
  */
 export async function getUserApiKey(
   userId: string,
-  provider: string = "openai"
+  provider: string = AI_PROVIDERS.OPEN_AI,
 ): Promise<string | null> {
   try {
     const [apiKey] = await db
@@ -36,9 +37,9 @@ export async function getApiKey(userId: string, provider: string): Promise<strin
   const customKey = await getUserApiKey(userId, provider);
 
   switch (provider) {
-    case "openai":
+    case AI_PROVIDERS.OPEN_AI:
       return customKey || process.env.OPENAI_API_KEY || "";
-    case "gemini":
+    case AI_PROVIDERS.GEMINI:
       return customKey || process.env.GEMINI_API_KEY || "";
     default:
       throw new Error(`Unsupported provider: ${provider}`);

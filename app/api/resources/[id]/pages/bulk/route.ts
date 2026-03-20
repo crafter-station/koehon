@@ -15,6 +15,7 @@ import { uploadFile, generateObjectName } from "@/lib/storage/minio";
 import { getAudioDuration } from "@/lib/audio-utils";
 import { USER_TIERS, getMaxPagesForTier, hasUnlimitedPages } from "@/lib/config/tiers";
 import { getApiKey } from "@/lib/user-api-keys";
+import { AI_PROVIDERS } from "@/lib/config/providers";
 
 interface BulkPageRequest {
   pages: Array<{
@@ -72,18 +73,18 @@ export async function POST(
     }
 
     // Get user's custom API key (if they have one)
-    const extractorProvider = "openai"; // TODO: should change in the future from user configs
-    const translatorProvider = "openai"; // TODO: should change in the future from user configs
-    const audioGeneratorProvider = "openai"; // TODO: should change in the future from user configs
+    const extractorProvider = AI_PROVIDERS.OPEN_AI; // TODO: should change in the future from user configs
+    const translatorProvider = AI_PROVIDERS.OPEN_AI; // TODO: should change in the future from user configs
+    const audioGeneratorProvider = AI_PROVIDERS.OPEN_AI; // TODO: should change in the future from user configs
 
-    const geminiApiKey = await getApiKey(userId, "gemini");
-    const openAiApiKey = await getApiKey(userId, "openai");
+    const geminiApiKey = await getApiKey(userId, AI_PROVIDERS.GEMINI);
+    const openAiApiKey = await getApiKey(userId, AI_PROVIDERS.OPEN_AI);
 
     const getCachedApiKey = (provider: string) => {
       switch (provider) {
-        case "gemini":
+        case AI_PROVIDERS.GEMINI:
           return geminiApiKey;
-        case "openai":
+        case AI_PROVIDERS.OPEN_AI:
           return openAiApiKey;
         default:
           throw new Error(`Unsupported provider: ${provider}`);

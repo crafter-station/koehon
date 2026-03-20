@@ -7,6 +7,7 @@ import { Header } from "@/components/layout/header";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { AI_PROVIDERS } from "@/lib/config/providers";
 
 interface ApiKey {
   id: string;
@@ -48,7 +49,7 @@ export default function SettingsPage() {
       if (response.ok) {
         const data = await response.json();
         const openAiKey = data.apiKeys.find(
-          (k: ApiKey) => k.provider === "openai"
+          (k: ApiKey) => k.provider === AI_PROVIDERS.OPEN_AI,
         );
         setExistingKey(openAiKey || null);
       }
@@ -70,7 +71,7 @@ export default function SettingsPage() {
         },
         body: JSON.stringify({
           apiKey,
-          provider: "openai",
+          provider: AI_PROVIDERS.OPEN_AI,
         }),
       });
 
