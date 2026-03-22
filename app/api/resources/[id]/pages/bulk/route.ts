@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
-import { resourcePages, resources } from "@/lib/db/schema";
-import { eq, and, count, inArray } from "drizzle-orm";
+import { resourcePages, resources, userSettings } from "@/lib/db/schema";
+import { eq, count, inArray } from "drizzle-orm";
 import pLimit from "p-limit";
 import type { ApiErrorResponse, BulkGeneratePagesResponse } from "@/lib/api/types";
 import {
@@ -72,10 +72,16 @@ export async function POST(
       );
     }
 
-    // Get user's custom API key (if they have one)
-    const extractorProvider = AI_PROVIDERS.OPEN_AI; // TODO: should change in the future from user configs
-    const translatorProvider = AI_PROVIDERS.OPEN_AI; // TODO: should change in the future from user configs
-    const audioGeneratorProvider = AI_PROVIDERS.OPEN_AI; // TODO: should change in the future from user configs
+    // Get user's model preferences
+    const [settings] = await db
+      .select()
+      .from(userSettings)
+      .where(eq(userSettings.userId, userId))
+      .limit(1);
+
+    const extractorProvider = settings?.models?.extractor ?? AI_PROVIDERS.OPEN_AI;
+    const translatorProvider = settings?.models?.translator ?? AI_PROVIDERS.OPEN_AI;
+    const audioGeneratorProvider = settings?.models?.audio_generator ?? AI_PROVIDERS.OPEN_AI;
 
     const geminiApiKey = await getApiKey(userId, AI_PROVIDERS.GEMINI);
     const openAiApiKey = await getApiKey(userId, AI_PROVIDERS.OPEN_AI);
