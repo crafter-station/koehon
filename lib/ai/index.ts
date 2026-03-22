@@ -1,12 +1,15 @@
 import { AI_PROVIDERS } from "../config/providers";
 import { GeminiAudioGenerator, GeminiTranslator } from "./gemini";
 import { AudioGenerator, Extractor, Translator } from "./interfaces";
+import { MistralExtractor } from "./mistral";
 import { OpenAiAudioGenerator, OpenAiExtractor, OpenAiTranslator } from "./openai";
 
 export function newExtractor(provider: string, customApiKey?: string): Extractor {
   switch (provider) {
     case AI_PROVIDERS.OPEN_AI:
       return new OpenAiExtractor(customApiKey);
+    case AI_PROVIDERS.MISTRAL:
+      return new MistralExtractor(customApiKey);
     default:
       throw new Error(`Unsupported provider: ${provider}`);
   }
