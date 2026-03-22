@@ -107,8 +107,7 @@ export async function POST(
     const translator = newTranslator(translatorProvider, getCachedApiKey(translatorProvider));
     const audioGenerator = newAudioGenerator(audioGeneratorProvider, getCachedApiKey(audioGeneratorProvider));
 
-    // Fetch PDF file
-    const pdfFile = await fetchPdfAsFile(resource.pdfUrl);
+
 
     // Fetch all existing pages for this resource in one query
     const existingPages = await db
@@ -188,6 +187,9 @@ export async function POST(
       pagesToProcess.map((pageRequest) =>
         limit(async () => {
           const { page, language } = pageRequest;
+          // Fetch PDF file
+          // Need to fetch a new PDF per page to process to avoid bugs
+          const pdfFile = await fetchPdfAsFile(resource.pdfUrl);
 
           try {
             // 1. Extract text from PDF page using OpenAI (with image descriptions)
