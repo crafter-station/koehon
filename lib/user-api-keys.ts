@@ -41,6 +41,8 @@ export async function getApiKey(userId: string, provider: string): Promise<strin
       return customKey || process.env.OPENAI_API_KEY || "";
     case AI_PROVIDERS.GEMINI:
       return customKey || process.env.GEMINI_API_KEY || "";
+    case AI_PROVIDERS.MISTRAL:
+      return customKey || process.env.MISTRAL_API_KEY || "";
     default:
       throw new Error(`Unsupported provider: ${provider}`);
   }
