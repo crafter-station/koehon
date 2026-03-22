@@ -1,4 +1,4 @@
-import { pgTable, varchar, timestamp, text, integer, unique, index } from "drizzle-orm/pg-core";
+import { pgTable, varchar, timestamp, text, integer, unique, index, json } from "drizzle-orm/pg-core";
 import { nanoid } from "nanoid";
 
 export const resources = pgTable("resources", {
@@ -67,6 +67,26 @@ export const userApiKeys = pgTable("user_api_keys", {
   uniqueUserProvider: unique().on(table.userId, table.provider),
 }));
 
+export const userSettings = pgTable("user_settings", {
+  id: varchar("id", { length: 21 })
+    .primaryKey()
+    .$defaultFn(() => nanoid()),
+  userId: varchar("user_id", { length: 255 }).notNull().unique(),
+  models: json("models").$type<{
+    extractor: string;
+    translator: string;
+    audio_generator: string;
+  }>().notNull().default({
+    extractor: "openai",
+    translator: "openai",
+    audio_generator: "openai",
+  }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("user_settings_user_id_idx").on(table.userId),
+}));
+
 export type Resource = typeof resources.$inferSelect;
 export type NewResource = typeof resources.$inferInsert;
 export type ResourcePage = typeof resourcePages.$inferSelect;
@@ -75,3 +95,5 @@ export type Bookmark = typeof bookmarks.$inferSelect;
 export type NewBookmark = typeof bookmarks.$inferInsert;
 export type UserApiKey = typeof userApiKeys.$inferSelect;
 export type NewUserApiKey = typeof userApiKeys.$inferInsert;
+export type UserSettings = typeof userSettings.$inferSelect;
+export type NewUserSettings = typeof userSettings.$inferInsert;

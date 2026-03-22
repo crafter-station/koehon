@@ -7,7 +7,7 @@ import { Header } from "@/components/layout/header";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AI_PROVIDERS } from "@/lib/config/providers";
+import { AI_PROVIDERS, AVAILABLE_PROVIDERS, PROVIDER_LABELS } from "@/lib/config/providers";
 
 interface ApiKey {
   id: string;
@@ -18,12 +18,26 @@ interface ApiKey {
   updatedAt: string;
 }
 
+interface UserModels {
+  extractor: string;
+  translator: string;
+  audio_generator: string;
+}
+
+const DEFAULT_MODELS: UserModels = {
+  extractor: "openai",
+  translator: "openai",
+  audio_generator: "openai",
+};
+
 export default function SettingsPage() {
   const { isLoaded, userId } = useAuth();
   const router = useRouter();
   const [apiKey, setApiKey] = useState("");
   const [existingKey, setExistingKey] = useState<ApiKey | null>(null);
+  const [models, setModels] = useState<UserModels>(DEFAULT_MODELS);
   const [loading, setLoading] = useState(false);
+  const [modelsLoading, setModelsLoading] = useState(false);
   const [message, setMessage] = useState<{
     type: "success" | "error";
     text: string;
@@ -36,10 +50,11 @@ export default function SettingsPage() {
     }
   }, [isLoaded, userId, router]);
 
-  // Fetch existing API keys
+  // Fetch existing data
   useEffect(() => {
     if (userId) {
       fetchApiKeys();
+      fetchSettings();
     }
   }, [userId]);
 
@@ -58,6 +73,18 @@ export default function SettingsPage() {
     }
   };
 
+  const fetchSettings = async () => {
+    try {
+      const response = await fetch("/api/user/settings");
+      if (response.ok) {
+        const data = await response.json();
+        setModels(data.models);
+      }
+    } catch (error) {
+      console.error("Error fetching settings:", error);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -66,9 +93,7 @@ export default function SettingsPage() {
     try {
       const response = await fetch("/api/user/api-keys", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           apiKey,
           provider: AI_PROVIDERS.OPEN_AI,
@@ -138,6 +163,39 @@ export default function SettingsPage() {
     }
   };
 
+  async function handleSaveModels() {
+    setModelsLoading(true);
+    setMessage(null);
+
+    try {
+      const response = await fetch("/api/user/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ models }),
+      });
+
+      if (response.ok) {
+        setMessage({
+          type: "success",
+          text: "AI models updated successfully",
+        });
+      } else {
+        const data = await response.json();
+        setMessage({
+          type: "error",
+          text: data.error || "Failed to save settings",
+        });
+      }
+    } catch (error) {
+      setMessage({
+        type: "error",
+        text: "An error occurred. Please try again.",
+      });
+    } finally {
+      setModelsLoading(false);
+    }
+  }
+
   if (!isLoaded || !userId) {
     return null;
   }
@@ -171,6 +229,84 @@ export default function SettingsPage() {
               {message.text}
             </div>
           )}
+
+          {/* AI Models Section */}
+          <div className="border border-zinc-200 bg-white p-6 dark:border-white/10 dark:bg-zinc-900">
+            <h2 className="mb-2 text-xl font-semibold text-zinc-900 dark:text-white">
+              AI Models
+            </h2>
+            <p className="mb-4 text-sm text-zinc-600 dark:text-zinc-400">
+              Choose which AI provider to use for each processing step
+            </p>
+
+            <div className="space-y-4">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  Text Extractor
+                </label>
+                <select
+                  value={models.extractor}
+                  onChange={(e) => setModels({ ...models, extractor: e.target.value })}
+                  className="w-full border border-zinc-200 bg-white px-4 py-3 text-zinc-900 transition-colors focus:border-zinc-900 focus:outline-none dark:border-white/10 dark:bg-zinc-900 dark:text-white dark:focus:border-white"
+                >
+                  {AVAILABLE_PROVIDERS.extractor.map((provider) => (
+                    <option key={provider} value={provider}>
+                      {PROVIDER_LABELS[provider]}
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-1 text-xs text-zinc-500">
+                  Extracts text and images from PDF pages
+                </p>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  Translator
+                </label>
+                <select
+                  value={models.translator}
+                  onChange={(e) => setModels({ ...models, translator: e.target.value })}
+                  className="w-full border border-zinc-200 bg-white px-4 py-3 text-zinc-900 transition-colors focus:border-zinc-900 focus:outline-none dark:border-white/10 dark:bg-zinc-900 dark:text-white dark:focus:border-white"
+                >
+                  {AVAILABLE_PROVIDERS.translator.map((provider) => (
+                    <option key={provider} value={provider}>
+                      {PROVIDER_LABELS[provider]}
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-1 text-xs text-zinc-500">
+                  Translates extracted text to your target language
+                </p>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  Audio Generator
+                </label>
+                <select
+                  value={models.audio_generator}
+                  onChange={(e) => setModels({ ...models, audio_generator: e.target.value })}
+                  className="w-full border border-zinc-200 bg-white px-4 py-3 text-zinc-900 transition-colors focus:border-zinc-900 focus:outline-none dark:border-white/10 dark:bg-zinc-900 dark:text-white dark:focus:border-white"
+                >
+                  {AVAILABLE_PROVIDERS.audio_generator.map((provider) => (
+                    <option key={provider} value={provider}>
+                      {PROVIDER_LABELS[provider]}
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-1 text-xs text-zinc-500">
+                  Generates audio narration from translated text
+                </p>
+              </div>
+
+              <div>
+                <Button onClick={handleSaveModels} disabled={modelsLoading}>
+                  {modelsLoading ? "Saving..." : "Save Models"}
+                </Button>
+              </div>
+            </div>
+          </div>
 
           {/* API Keys Section */}
           <div className="border border-zinc-200 bg-white p-6 dark:border-white/10 dark:bg-zinc-900">
@@ -235,19 +371,6 @@ export default function SettingsPage() {
                 </Button>
               </div>
             </form>
-          </div>
-
-          {/* Additional Information */}
-          <div className="border border-zinc-200 bg-zinc-50 p-4 dark:border-white/10 dark:bg-zinc-800">
-            <h3 className="mb-2 text-sm font-semibold text-zinc-900 dark:text-white">
-              Why add your own API key?
-            </h3>
-            <ul className="list-inside list-disc space-y-1 text-sm text-zinc-600 dark:text-zinc-400">
-              <li>No usage limits or restrictions</li>
-              <li>Direct billing to your OpenAI account</li>
-              <li>Full control over your API usage</li>
-              <li>Access to latest OpenAI models and features</li>
-            </ul>
           </div>
         </div>
       </main>
