@@ -11,6 +11,8 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: production
+      HOSTNAME: "0.0.0.0"
+      PORT: "3000"
       CLERK_SECRET_KEY: ${CLERK_SECRET_KEY}
       DATABASE_URL: ${DATABASE_URL}
       MINIO_ENDPOINT: ${MINIO_ENDPOINT}
