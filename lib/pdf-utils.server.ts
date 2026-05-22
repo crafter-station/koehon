@@ -5,6 +5,7 @@ import { join } from "path";
 import { tmpdir } from "os";
 import { promisify } from "util";
 import { readFileSync } from "fs";
+import { extractKeyFromUrl, fetchObjectBuffer } from "./storage/uploadx";
 
 const execFileAsync = promisify(execFile);
 
@@ -37,20 +38,28 @@ export async function fetchPdfAsFile(
   url: string,
   filename?: string,
 ): Promise<File> {
-  const response = await fetch(url);
+  const finalFilename =
+    filename || url.split("/").pop()?.split("?")[0] || "document.pdf";
 
+  // If the URL points at our own Uploadx storage (a relative /api/uploadx/f/<key>
+  // path), Node's global fetch can't resolve it. Read straight from storage.
+  const key = extractKeyFromUrl(url);
+  if (key) {
+    const buffer = await fetchObjectBuffer(key);
+    const ab = buffer.buffer.slice(
+      buffer.byteOffset,
+      buffer.byteOffset + buffer.byteLength,
+    ) as ArrayBuffer;
+    return new File([ab], finalFilename, { type: "application/pdf" });
+  }
+
+  const response = await fetch(url);
   if (!response.ok) {
     throw new Error(
       `Failed to fetch PDF: ${response.status} ${response.statusText}`,
     );
   }
-
   const blob = await response.blob();
-
-  // Extract filename from URL if not provided
-  const finalFilename =
-    filename || url.split("/").pop()?.split("?")[0] || "document.pdf";
-
   return new File([blob], finalFilename, { type: "application/pdf" });
 }
 

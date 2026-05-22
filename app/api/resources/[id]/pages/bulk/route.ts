@@ -187,11 +187,11 @@ export async function POST(
       pagesToProcess.map((pageRequest) =>
         limit(async () => {
           const { page, language } = pageRequest;
-          // Fetch PDF file
-          // Need to fetch a new PDF per page to process to avoid bugs
-          const pdfFile = await fetchPdfAsFile(resource.pdfUrl);
 
           try {
+            // 0. Fetch a fresh PDF per page to avoid pdf-lib state-sharing bugs.
+            const pdfFile = await fetchPdfAsFile(resource.pdfUrl);
+
             // 1. Extract text from PDF page using OpenAI (with image descriptions)
             const extractedText = await extractor.extractPageTextWithImages(pdfFile, page);
 
@@ -261,11 +261,22 @@ export async function POST(
     const createdPages = [];
     const errors: Array<{ page: number; language: string; error: string }> = [];
 
-    for (const result of results) {
+    for (let i = 0; i < results.length; i++) {
+      const result = results[i];
+      const { page, language } = pagesToProcess[i];
+
       if (result.status === "fulfilled" && result.value.success) {
         createdPages.push(result.value.page);
       } else if (result.status === "rejected") {
-        errors.push(result.reason);
+        const reason = result.reason;
+        if (reason && typeof reason === "object" && "error" in reason) {
+          errors.push(reason as { page: number; language: string; error: string });
+        } else {
+          // Native Error (or anything else) — wrap so it serializes to JSON.
+          const message =
+            reason instanceof Error ? reason.message : String(reason ?? "Unknown error");
+          errors.push({ page, language, error: message });
+        }
       }
     }
 
