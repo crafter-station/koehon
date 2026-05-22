@@ -8,7 +8,6 @@ import type {
   GetBookmarksResponse,
   CreateBookmarkRequest,
   CreateBookmarkResponse,
-  ImportResourceResponse,
 } from "./types";
 
 export const resourcesApi = {
@@ -62,15 +61,6 @@ export const resourcesApi = {
 
   getExportUrl(resourceId: string): string {
     return `/api/resources/${resourceId}/export`;
-  },
-
-  async import(file: File): Promise<ImportResourceResponse> {
-    const formData = new FormData();
-    formData.append("file", file);
-    return apiClient.postFormData<ImportResourceResponse>(
-      "/resources/import",
-      formData
-    );
   },
 
   // Bookmarks
