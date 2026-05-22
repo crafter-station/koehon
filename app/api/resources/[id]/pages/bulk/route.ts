@@ -12,7 +12,7 @@ import {
   newCleaner,
 } from "@/lib/ai";
 import { fetchPdfAsFile } from "@/lib/pdf-utils.server";
-import { uploadFile, generateObjectName } from "@/lib/storage/minio";
+import { uploadFile } from "@/lib/storage/uploadx";
 import { getAudioDuration } from "@/lib/audio-utils";
 import { USER_TIERS, getMaxPagesForTier, hasUnlimitedPages } from "@/lib/config/tiers";
 import { getApiKey } from "@/lib/user-api-keys";
@@ -207,14 +207,13 @@ export async function POST(
             // 5. Get audio duration
             const audioDuration = await getAudioDuration(audioBlob);
 
-            // 6. Upload audio to MinIO
+            // 6. Upload audio to storage
             const audioFile = new File(
               [audioBlob],
               `${resource.id}-page-${page}-${language}.mp3`,
               { type: "audio/mpeg" }
             );
-            const audioObjectName = generateObjectName(userId, audioFile.name);
-            const { url: audioUrl } = await uploadFile(audioFile, audioObjectName);
+            const { url: audioUrl } = await uploadFile(audioFile);
 
             // 7. Store resource page in database
             const [newPage] = await db

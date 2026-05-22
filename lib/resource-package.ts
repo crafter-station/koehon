@@ -4,11 +4,9 @@ import { db } from "./db";
 import { resources, resourcePages, bookmarks } from "./db/schema";
 import {
   uploadFile,
-  generateObjectName,
-  extractObjectNameFromUrl,
-  BUCKET_NAME,
-  minioClient,
-} from "./storage/minio";
+  extractKeyFromUrl,
+  fetchObjectBuffer,
+} from "./storage/uploadx";
 
 export const PACKAGE_VERSION = 1;
 export const MANIFEST_FILENAME = "manifest.json";
@@ -51,21 +49,16 @@ function getExtensionFromUrl(url: string, fallback: string): string {
 }
 
 async function fetchAsBuffer(url: string): Promise<Buffer> {
-  const objectName = extractObjectNameFromUrl(url);
+  const key = extractKeyFromUrl(url);
 
-  // Prefer reading directly from MinIO when the URL points at our own bucket;
-  // this avoids relying on public URLs being reachable from the server.
-  if (objectName) {
+  // Prefer pulling directly from storage via a signed URL — that avoids the
+  // Next.js loopback through /api/uploadx/f/<key>.
+  if (key) {
     try {
-      const stream = await minioClient.getObject(BUCKET_NAME, objectName);
-      const chunks: Buffer[] = [];
-      for await (const chunk of stream) {
-        chunks.push(chunk as Buffer);
-      }
-      return Buffer.concat(chunks);
+      return await fetchObjectBuffer(key);
     } catch (error) {
       console.warn(
-        `Falling back to HTTP fetch for ${url} (MinIO read failed):`,
+        `Falling back to HTTP fetch for ${url} (storage read failed):`,
         error
       );
     }
@@ -187,7 +180,7 @@ export interface ImportResult {
 
 /**
  * Parse a resource package ZIP and persist it as a new resource owned by userId.
- * Generates new IDs and re-uploads all assets to MinIO.
+ * Generates new IDs and re-uploads all assets to storage.
  */
 export async function importResourcePackage(
   zipBuffer: Buffer,
@@ -238,12 +231,9 @@ export async function importResourcePackage(
     : "application/octet-stream";
   const coverFile = await bufferToFile(coverBuffer, manifest.files.cover, coverMime);
 
-  const pdfObjectName = generateObjectName(userId, manifest.files.pdf);
-  const coverObjectName = generateObjectName(userId, manifest.files.cover);
-
   const [pdfUpload, coverUpload] = await Promise.all([
-    uploadFile(pdfFile, pdfObjectName),
-    uploadFile(coverFile, coverObjectName),
+    uploadFile(pdfFile),
+    uploadFile(coverFile),
   ]);
 
   const [insertedResource] = await db
@@ -267,8 +257,7 @@ export async function importResourcePackage(
       const audioBuffer = Buffer.from(await audioEntry.async("arraybuffer"));
       const audioName = `${insertedResource.id}-page-${p.page}-${p.language}.mp3`;
       const audioFile = await bufferToFile(audioBuffer, audioName, "audio/mpeg");
-      const objectName = generateObjectName(userId, audioName);
-      const { url } = await uploadFile(audioFile, objectName);
+      const { url } = await uploadFile(audioFile);
       return {
         resourceId: insertedResource.id,
         page: p.page,

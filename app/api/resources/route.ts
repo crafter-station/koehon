@@ -5,7 +5,7 @@ import type {
   ResourceResponse,
   ApiErrorResponse,
 } from "@/lib/api/types";
-import { uploadFile, generateObjectName } from "@/lib/storage/minio";
+import { uploadFile } from "@/lib/storage/uploadx";
 import { db } from "@/lib/db";
 import { resources } from "@/lib/db/schema";
 
@@ -72,29 +72,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate unique object names
-    const pdfObjectName = generateObjectName(userId, file.name);
-    const coverObjectName = generateObjectName(userId, cover.name);
-
-    // Upload both files to MinIO
+    // Upload both files to Uploadx
     const [pdfUpload, coverUpload] = await Promise.all([
-      uploadFile(file, pdfObjectName),
-      uploadFile(cover, coverObjectName),
+      uploadFile(file),
+      uploadFile(cover),
     ]);
 
-    console.log("Files uploaded to MinIO:", {
-      pdf: {
-        name: file.name,
-        objectName: pdfObjectName,
-        url: pdfUpload.url,
-        etag: pdfUpload.etag,
-      },
-      cover: {
-        name: cover.name,
-        objectName: coverObjectName,
-        url: coverUpload.url,
-        etag: coverUpload.etag,
-      },
+    console.log("Files uploaded to Uploadx:", {
+      pdf: { name: file.name, key: pdfUpload.key, url: pdfUpload.url },
+      cover: { name: cover.name, key: coverUpload.key, url: coverUpload.url },
       language,
       userId,
     });

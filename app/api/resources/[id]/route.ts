@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { resources, resourcePages } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import type { ApiErrorResponse } from "@/lib/api/types";
-import { deleteFile, extractObjectNameFromUrl } from "@/lib/storage/minio";
+import { deleteFile, extractKeyFromUrl } from "@/lib/storage/uploadx";
 
 export async function PATCH(
   request: NextRequest,
@@ -107,42 +107,42 @@ export async function DELETE(
       .from(resourcePages)
       .where(eq(resourcePages.resourceId, id));
 
-    // Delete all audio files from MinIO
+    // Delete all audio files from storage
     const audioDeletePromises = pages.map(async (page) => {
-      const objectName = extractObjectNameFromUrl(page.audioUrl);
-      if (objectName) {
+      const key = extractKeyFromUrl(page.audioUrl);
+      if (key) {
         try {
-          await deleteFile(objectName);
-          console.log(`Deleted audio file: ${objectName}`);
+          await deleteFile(key);
+          console.log(`Deleted audio file: ${key}`);
         } catch (error) {
-          console.error(`Failed to delete audio file ${objectName}:`, error);
+          console.error(`Failed to delete audio file ${key}:`, error);
         }
       }
     });
 
-    // Delete PDF and cover from MinIO
-    const pdfObjectName = extractObjectNameFromUrl(resource.pdfUrl);
-    const coverObjectName = extractObjectNameFromUrl(resource.coverUrl);
+    // Delete PDF and cover from storage
+    const pdfKey = extractKeyFromUrl(resource.pdfUrl);
+    const coverKey = extractKeyFromUrl(resource.coverUrl);
 
     const fileDeletePromises = [];
 
-    if (pdfObjectName) {
+    if (pdfKey) {
       fileDeletePromises.push(
-        deleteFile(pdfObjectName)
-          .then(() => console.log(`Deleted PDF file: ${pdfObjectName}`))
-          .catch((error) => console.error(`Failed to delete PDF ${pdfObjectName}:`, error))
+        deleteFile(pdfKey)
+          .then(() => console.log(`Deleted PDF file: ${pdfKey}`))
+          .catch((error) => console.error(`Failed to delete PDF ${pdfKey}:`, error))
       );
     }
 
-    if (coverObjectName) {
+    if (coverKey) {
       fileDeletePromises.push(
-        deleteFile(coverObjectName)
-          .then(() => console.log(`Deleted cover file: ${coverObjectName}`))
-          .catch((error) => console.error(`Failed to delete cover ${coverObjectName}:`, error))
+        deleteFile(coverKey)
+          .then(() => console.log(`Deleted cover file: ${coverKey}`))
+          .catch((error) => console.error(`Failed to delete cover ${coverKey}:`, error))
       );
     }
 
-    // Wait for all MinIO deletions to complete (best effort)
+    // Wait for all storage deletions to complete (best effort)
     await Promise.allSettled([...audioDeletePromises, ...fileDeletePromises]);
 
     // Delete resource from database (this will cascade delete pages due to schema constraint)

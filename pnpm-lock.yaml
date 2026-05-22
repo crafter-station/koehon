@@ -26,6 +26,12 @@ importers:
       '@phosphor-icons/react':
         specifier: ^2.1.10
         version: 2.1.10(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@uploadx-sdk/core':
+        specifier: ^0.3.0
+        version: 0.3.0(drizzle-orm@0.45.1(@opentelemetry/api@1.9.0)(postgres@3.4.8))(next@16.1.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
+      '@uploadx-sdk/react':
+        specifier: ^0.2.0
+        version: 0.2.0(drizzle-orm@0.45.1(@opentelemetry/api@1.9.0)(postgres@3.4.8))(next@16.1.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       ai:
         specifier: ^6.0.116
         version: 6.0.116(zod@3.25.76)
@@ -41,9 +47,6 @@ importers:
       jszip:
         specifier: ^3.10.1
         version: 3.10.1
-      minio:
-        specifier: ^8.0.7
-        version: 8.0.7
       nanoid:
         specifier: ^5.1.6
         version: 5.1.6
@@ -1445,6 +1448,40 @@ packages:
     resolution: {integrity: sha512-lrW200hZdbfRtztbygyaq/6jP6AKE8qQN2KvPcJ+x7wiD038YtnYtZ82IMNJ69GJibV7bwL3y9FgK+5w/pYt6g==}
     cpu: [x64]
     os: [win32]
+
+  '@uploadx-sdk/core@0.2.0':
+    resolution: {integrity: sha512-iq8X3DMtOV4/HLno7/VKcj2+NtkbTWF+SenOI0UyDCmnbz/RXRPPS+EyGnhJBr0HOxYFc3j2NSdlLLLIba34gA==}
+    peerDependencies:
+      drizzle-orm: '>=0.30.0'
+      next: '>=14.0.0'
+      pg: '>=8.0.0'
+    peerDependenciesMeta:
+      drizzle-orm:
+        optional: true
+      next:
+        optional: true
+      pg:
+        optional: true
+
+  '@uploadx-sdk/core@0.3.0':
+    resolution: {integrity: sha512-AJ11RnS3djzeSl0hu4hlCkC/91caKdZVA0PluKUc/luc2KVV10X0E+KW7uChXw/iG8DT0psX1vTuxR+sbcXYnw==}
+    peerDependencies:
+      drizzle-orm: '>=0.30.0'
+      next: '>=14.0.0'
+      pg: '>=8.0.0'
+    peerDependenciesMeta:
+      drizzle-orm:
+        optional: true
+      next:
+        optional: true
+      pg:
+        optional: true
+
+  '@uploadx-sdk/react@0.2.0':
+    resolution: {integrity: sha512-YtMnwuW0KlRvZPE2DOb/TvU50BotFW67VpcO90hAWo+V9prG+xAvXy4ZpaCku2KvaDNb3mRGsberEUA+1XZykA==}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
 
   '@vercel/oidc@3.1.0':
     resolution: {integrity: sha512-Fw28YZpRnA3cAHHDlkt7xQHiJ0fcL+NRcIqsocZQUSmbzeIKRpwttJjik5ZGanXP+vlA4SbTg+AbA3bP363l+w==}
@@ -5101,6 +5138,30 @@ snapshots:
 
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
+
+  '@uploadx-sdk/core@0.2.0(drizzle-orm@0.45.1(@opentelemetry/api@1.9.0)(postgres@3.4.8))(next@16.1.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))':
+    dependencies:
+      minio: 8.0.7
+    optionalDependencies:
+      drizzle-orm: 0.45.1(@opentelemetry/api@1.9.0)(postgres@3.4.8)
+      next: 16.1.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+
+  '@uploadx-sdk/core@0.3.0(drizzle-orm@0.45.1(@opentelemetry/api@1.9.0)(postgres@3.4.8))(next@16.1.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))':
+    dependencies:
+      minio: 8.0.7
+    optionalDependencies:
+      drizzle-orm: 0.45.1(@opentelemetry/api@1.9.0)(postgres@3.4.8)
+      next: 16.1.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+
+  '@uploadx-sdk/react@0.2.0(drizzle-orm@0.45.1(@opentelemetry/api@1.9.0)(postgres@3.4.8))(next@16.1.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+    dependencies:
+      '@uploadx-sdk/core': 0.2.0(drizzle-orm@0.45.1(@opentelemetry/api@1.9.0)(postgres@3.4.8))(next@16.1.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
+    transitivePeerDependencies:
+      - drizzle-orm
+      - next
+      - pg
 
   '@vercel/oidc@3.1.0': {}
 
